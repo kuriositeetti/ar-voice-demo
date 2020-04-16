@@ -9,6 +9,11 @@ canvas {
   touch-action: none;
 }
 
+#allow-microphone {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+}
+
 #ui {
     position: relative;
     width: 100%;

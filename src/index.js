@@ -255,15 +255,6 @@ function undo() {
 let rayOrigin = vec3.create();
 let rayDirection = vec3.create();
 function onSelect(event) {
-  /*
-  if (reticle.visible) {
-    // The reticle should already be positioned at the latest hit point, 
-    // so we can just use it's matrix to save an unnecessary call to 
-    // event.frame.getHitTestResults.
-    addARObjectAt(reticle.matrix, Math.random());
-  }
-  */
-  
   if (!microphoneIsOn) {
     startRecording();
   } else {
