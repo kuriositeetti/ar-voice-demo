@@ -9,7 +9,7 @@
     "start": "node ./dist/server.js"
   },
   "keywords": [],
-  "license": "UNLICENSED",
+  "license": "MIT",
   "engines": {
     "node": "10.x"
   },

@@ -12,36 +12,7 @@ import { DropShadowNode } from './js/render/nodes/drop-shadow.js';
 import { vec3 } from './js/render/math/gl-matrix.js';
 import { Ray } from './js/render/math/ray.js';
 
-/*
-// We will use 2D canvas element to render our HUD.  
-var hudCanvas = document.createElement('canvas');
-
-// Again, set dimensions to fit the screen.
-let width = document.body.clientWidth;
-let height = document.body.clientHeight;
-hudCanvas.width = width;
-hudCanvas.height = height;
-
-// Get 2D context and draw something supercool.
-var hudBitmap = hudCanvas.getContext('2d');
-hudBitmap.font = "Normal 40px Arial";
-hudBitmap.textAlign = 'center';
-hudBitmap.fillStyle = "rgba(245,245,245,0.75)";
-hudBitmap.fillText('Initializing...', width / 2, height / 2);
-
-// Create the camera and set the viewport to match the screen dimensions.
-var cameraHUD = new THREE.OrthographicCamera(-width/2, width/2, height/2, -height/2, 0, 30 );
-
-// Create texture from rendered graphics.
-var hudTexture = new THREE.Texture(hudCanvas) 
-hudTexture.needsUpdate = true;
-
-// Create HUD material.
-var material = new THREE.MeshBasicMaterial( {map: hudTexture} );
-material.transparent = true;
-*/
-
-// Create a new Client.
+// Create a new Speechly Client.
 const client = new Client({
   appId: '754e813b-eb59-4811-9258-3deef0130c6d',
   language: 'en-US'
@@ -58,15 +29,15 @@ document.getElementById('allow-microphone').addEventListener('click', (event) =>
     });
 });
 
-// React to the phrases received from the API
+// Add a flower object to scene
 function addFlower(size) {
   let objectScale = 1;
   switch(size.toLowerCase()) {
-    case 'big': objectScale = 1.4;
+    case 'tiny': objectScale = 0.2;
     break;
     case 'small': objectScale = 0.6;
     break;
-    case 'tiny': objectScale = 0.2;
+    case 'big': objectScale = 1.4;
     break;
     case 'huge': objectScale = 1.8;
     default: console.log('no size detected');
@@ -78,6 +49,7 @@ function addFlower(size) {
   }
 };
 
+// React to the phrases received from the API
 client.onSegmentChange(segment => {
   if (segment.isFinal && segment.intent.intent === 'place') {
     console.log(segment.entities);
@@ -90,7 +62,7 @@ client.onSegmentChange(segment => {
       if (entity.type === 'size') {
         sizes.push(entity.value);
       }
-      if (entity.type === 'object' && entity.value.toLowerCase() === 'flower') {
+      if (entity.type === 'object' && (entity.value.toLowerCase() === 'flower' || entity.value.toLowerCase() === 'stick')) {
         objects.push(entity.value);
       }
     });
@@ -168,7 +140,14 @@ function initXR() {
 }
 
 function onRequestSession() {
-  return navigator.xr.requestSession('immersive-ar', {optionalFeatures: ['dom-overlay'], domOverlay: { root: uiElement }, requiredFeatures: ['local', 'hit-test']})
+  return navigator.xr.requestSession(
+    'immersive-ar',
+    {
+      optionalFeatures: ['dom-overlay'],
+      domOverlay: { root: uiElement }, 
+      requiredFeatures: ['local', 'hit-test']
+    }
+  )
   .then((session) => {
     xrButton.setSession(session);
     onSessionStarted(session);
@@ -187,8 +166,6 @@ function onSessionStarted(session) {
     renderer = new Renderer(gl);
 
     scene.setRenderer(renderer);
-
-    console.log(gl);
   }
 
   session.updateRenderState({ baseLayer: new XRWebGLLayer(session, gl) });
@@ -262,9 +239,9 @@ function onSelect(event) {
   }
 }
 
+// Recording functions
 function startRecording() {
   console.log('start recording');
-  // Start recording
   microphoneIsOn = true;
   intentDone = false;
   uiDotElement.classList.add('ui__dot--recording');
@@ -275,10 +252,10 @@ function startRecording() {
       return;
     }
 
-    // Stop recording after 4 seconds
+    // Stop recording after 5 seconds
     setTimeout(() => {
       stopRecording();
-    }, 4000);
+    }, 5000);
   });
 }
 
@@ -323,7 +300,7 @@ initXR();
 
 
 // Log message to console
-logMessage('Its finished!!')
+logMessage('Its loaded!!')
 
 if (module.hot)       // eslint-disable-line no-undef
   module.hot.accept() // eslint-disable-line no-undef
