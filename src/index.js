@@ -231,6 +231,8 @@ function undo() {
 
 let rayOrigin = vec3.create();
 let rayDirection = vec3.create();
+
+// handle screen click in AR
 function onSelect(event) {
   if (!microphoneIsOn) {
     startRecording();
