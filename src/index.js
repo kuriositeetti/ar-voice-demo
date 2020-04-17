@@ -81,7 +81,6 @@ client.onSegmentChange(segment => {
 });
 
 let microphoneIsOn = false;
-let intentDone = false;
 
 // XR globals.
 let xrButton = null;
@@ -245,7 +244,6 @@ function onSelect(event) {
 function startRecording() {
   console.log('start recording');
   microphoneIsOn = true;
-  intentDone = false;
   uiDotElement.classList.add('ui__dot--recording');
   client.startContext((err) => {
     if (err !== undefined) {

@@ -10,14 +10,30 @@
 
 ## Running the code locally
 
-Install the project dependencies by running `yarn install`
-Build the code by running `yarn build`
-Start the node server by running `yarn start`
+* Install the project dependencies by running `yarn install`
+* Build the code by running `yarn build`
+* Start the node server by running `yarn start`
 
-Setup USB port forwarding to port `8887` at `chrome://inspect/#devices` on your workstation
-Navigate to `http://localhost:8887` in your Google Chrome Canary (on the AR device)
-You can view the javascript console of your AR device by inspecting the open tab at `chrome://inspect/#devices` on your workstation
+* Setup USB port forwarding to port `8887` at `chrome://inspect/#devices` on your workstation
+* Navigate to `http://localhost:8887` in your Google Chrome Canary (on the AR device)
+* You can view the javascript console of your AR device by inspecting the open tab at `chrome://inspect/#devices` on your workstation
 
+## Example sentences: 
+
+Place an object:
+```
+Plant a flower
+Place flower
+Put down the flower
+```
+
+Undo:
+```
+Undo
+Undo flower
+Remove the flower
+Destroy a flower
+```
 ## Credits: 
 
 ## Building an augmented reality application with the WebXR Device API
