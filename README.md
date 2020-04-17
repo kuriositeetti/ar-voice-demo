@@ -27,6 +27,14 @@ Place flower
 Put down the flower
 ```
 
+Place an object of different size:
+```
+Plant a big flower
+Place small flower
+Put down the tiny flower
+Add huge flower
+```
+
 Undo:
 ```
 Undo
