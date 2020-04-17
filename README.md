@@ -1,4 +1,4 @@
-#Speechly web AR garden demo
+# Speechly web AR garden demo
 
 ## What you need to run the demo
 
