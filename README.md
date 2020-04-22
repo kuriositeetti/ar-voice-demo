@@ -42,6 +42,15 @@ Undo flower
 Remove the flower
 Destroy a flower
 ```
+
+Reset:
+```
+Reset
+Reset all
+Flower begone
+Hide all flowers
+```
+
 ## Credits: 
 
 ## Building an augmented reality application with the WebXR Device API

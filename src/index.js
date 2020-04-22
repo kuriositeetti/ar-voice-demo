@@ -78,9 +78,17 @@ client.onSegmentChange(segment => {
 
     undo();
   }
+
+  if (segment.isFinal && segment.intent.intent === 'reset') {
+    console.log(segment.entities);
+    console.log(segment.intent.intent);
+
+    reset();
+  }
 });
 
 let microphoneIsOn = false;
+let microphoneTimeout;
 
 // XR globals.
 let xrButton = null;
@@ -190,12 +198,12 @@ function onSessionStarted(session) {
 function onEndSession(session) {
   xrHitTestSource.cancel();
   xrHitTestSource = null;
-  stopRecording();
   session.end();
 }
 
 function onSessionEnded(event) {
   xrButton.setSession(null);
+  stopRecording();
 }
 
 // Adds a new object to the scene at the
@@ -228,6 +236,15 @@ function undo() {
   }
 }
 
+function reset() {
+  if (flowers.length) {
+    flowers.forEach((item) => {
+      scene.removeNode(item);
+    });
+    flowers = [];
+  }
+}
+
 let rayOrigin = vec3.create();
 let rayDirection = vec3.create();
 
@@ -253,7 +270,7 @@ function startRecording() {
     }
 
     // Stop recording after 5 seconds
-    setTimeout(() => {
+    microphoneTimeout = setTimeout(() => {
       stopRecording();
     }, 5000);
   });
@@ -261,6 +278,7 @@ function startRecording() {
 
 function stopRecording() {
   console.log('stop recording');
+  clearTimeout(microphoneTimeout);
   microphoneIsOn = false;
   uiDotElement.classList.remove('ui__dot--recording');
   client.stopContext();
