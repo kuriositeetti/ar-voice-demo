@@ -11,7 +11,7 @@
   "keywords": [],
   "license": "MIT",
   "engines": {
-    "node": "10.x"
+    "node": "20.x"
   },
   "dependencies": {
     "@speechly/browser-client": "^0.3.0",
