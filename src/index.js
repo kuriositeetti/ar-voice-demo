@@ -2,7 +2,7 @@ import logMessage from './js/logger'
 import './css/style.css'
 
 //import * as THREE from './js/third-party/three.module.js';
-import { Client, Segment } from '@speechly/browser-client';
+import { BrowserClient, BrowserMicrophone } from '@speechly/browser-client';
 import { WebXRButton } from './js/util/webxr-button.js';
 import { Scene } from './js/render/scenes/scene.js';
 import { Renderer, createWebGLContext } from './js/render/core/renderer.js';
@@ -12,21 +12,24 @@ import { DropShadowNode } from './js/render/nodes/drop-shadow.js';
 import { vec3 } from './js/render/math/gl-matrix.js';
 import { Ray } from './js/render/math/ray.js';
 
-// Create a new Speechly Client.
-const client = new Client({
+const microphone = new BrowserMicrophone();
+const client = new BrowserClient({
   appId: '754e813b-eb59-4811-9258-3deef0130c6d',
-  language: 'en-US'
+  logSegments: true,
+  debug: true,
 });
 
-document.getElementById('allow-microphone').addEventListener('click', (event) => {
+const attachMicrophone = async () => {
+  if (microphone.mediaStream) return;
+  await microphone.initialize();
+  await client.attach(microphone.mediaStream);
+};
+
+document.getElementById('allow-microphone').addEventListener('click', async (event) => {
     console.log('click microphone allow');
-    // Initialize the client - this will ask the user for microphone permissions and establish the connection to Speechly API.
-    // Make sure you call `initlialize` from a user action handler (e.g. from a button press handler).
-    client.initialize((err) => {
-      if (err !== undefined) {
-        console.error('Failed to initialize Speechly client:', err);
-      }
-    });
+    if (!client.isActive()) {
+      await attachMicrophone();
+    }
 });
 
 // Add a flower object to scene
@@ -40,6 +43,7 @@ function addFlower(size) {
     case 'big': objectScale = 1.4;
     break;
     case 'huge': objectScale = 1.8;
+    break;
     default: console.log('no size detected');
     break;
   }
@@ -95,9 +99,9 @@ let xrButton = null;
 let xrRefSpace = null;
 let xrViewerSpace = null;
 let xrHitTestSource = null;
-let logged = false;
 const uiElement = document.getElementById('ui');
 const uiDotElement = document.getElementById('ui__dot');
+const uiEndButton = document.getElementById('ui__end');
 
 // WebGL scene globals.
 let gl = null;
@@ -158,6 +162,10 @@ function onRequestSession() {
   .then((session) => {
     xrButton.setSession(session);
     onSessionStarted(session);
+    uiEndButton.addEventListener('click', (event) => {
+      console.log('End session click');
+      session.end();
+    });
   });
 }
 
@@ -245,11 +253,9 @@ function reset() {
   }
 }
 
-let rayOrigin = vec3.create();
-let rayDirection = vec3.create();
-
 // handle screen click in AR
 function onSelect(event) {
+  console.log('Target:', event.target);
   if (!microphoneIsOn) {
     startRecording();
   } else {
@@ -258,30 +264,33 @@ function onSelect(event) {
 }
 
 // Recording functions
-function startRecording() {
+async function startRecording() {
   console.log('start recording');
-  microphoneIsOn = true;
-  uiDotElement.classList.add('ui__dot--recording');
-  client.startContext((err) => {
-    if (err !== undefined) {
-      console.error('Failed to start recording:', err);
-      stopRecording();
-      return;
-    }
+  try {
+    await client.start();
+    microphoneIsOn = true;
+    uiDotElement.classList.add('ui__dot--recording');
+  } catch(err) {
+    console.error('Failed to start recording:', err);
+    stopRecording();
+  }
 
-    // Stop recording after 5 seconds
-    microphoneTimeout = setTimeout(() => {
-      stopRecording();
-    }, 5000);
-  });
+  /*
+  // Stop recording after 5 seconds
+  microphoneTimeout = setTimeout(() => {
+    stopRecording();
+  }, 5000);
+  */
 }
 
-function stopRecording() {
+async function stopRecording() {
   console.log('stop recording');
-  clearTimeout(microphoneTimeout);
-  microphoneIsOn = false;
-  uiDotElement.classList.remove('ui__dot--recording');
-  client.stopContext();
+  //clearTimeout(microphoneTimeout);
+  if (client.isActive()) {
+    await client.stop();
+    microphoneIsOn = false;
+    uiDotElement.classList.remove('ui__dot--recording');
+  }
 }
 
 // Called every time a XRSession requests that a new frame be drawn.
@@ -301,8 +310,6 @@ function onXRFrame(t, frame) {
       reticle.matrix = pose.transform.matrix;
     }
   }
-
-  //if (!logged) { logged = true; console.log(gl);}
 
   scene.startFrame();
 

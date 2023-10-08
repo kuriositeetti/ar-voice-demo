@@ -34,3 +34,11 @@ canvas {
 .ui__dot--recording {
     display: block !important;
 }
+
+.ui__end {
+    position: absolute;
+    font-size: 1.5rem;
+    z-index: 100;
+    top: 2rem;
+    left: 2rem;
+}
