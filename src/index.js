@@ -49,7 +49,28 @@ function addFlower(size) {
   }
 
   if (reticle.visible) {
-    addARObjectAt(reticle.matrix, objectScale);
+    addARObjectAt(reticle.matrix, objectScale, 'flower');
+  }
+};
+
+// Add a flower object to scene
+function addPalmtree(size) {
+  let objectScale = 1;
+  switch(size.toLowerCase()) {
+    case 'tiny': objectScale = 0.2;
+    break;
+    case 'small': objectScale = 0.6;
+    break;
+    case 'big': objectScale = 1.4;
+    break;
+    case 'huge': objectScale = 1.8;
+    break;
+    default: console.log('no size detected');
+    break;
+  }
+
+  if (reticle.visible) {
+    addARObjectAt(reticle.matrix, objectScale, 'palmtree');
   }
 };
 
@@ -66,13 +87,17 @@ client.onSegmentChange(segment => {
       if (entity.type === 'size') {
         sizes.push(entity.value);
       }
-      if (entity.type === 'object' && (entity.value.toLowerCase() === 'flower' || entity.value.toLowerCase() === 'stick')) {
+      if (entity.type === 'object' && (entity.value.toLowerCase() === 'flower' || entity.value.toLowerCase() === 'palm' || entity.value.toLowerCase() === 'palmtree')) {
         objects.push(entity.value);
       }
     });
 
-    if (sizes.length || objects.length) {
-      addFlower(sizes.length ? sizes[0] : 'default');
+    if (objects.length) {
+      if (objects[objects.length - 1].toLowerCase() === 'flower') {
+        addFlower(sizes.length ? sizes[0] : 'default');
+      } else {
+        addPalmtree(sizes.length ? sizes[0] : 'default');
+      }
     }
   }
 
@@ -92,7 +117,7 @@ client.onSegmentChange(segment => {
 });
 
 let microphoneIsOn = false;
-let microphoneTimeout;
+//let microphoneTimeout;
 
 // XR globals.
 let xrButton = null;
@@ -109,12 +134,19 @@ let renderer = null;
 let scene = new Scene();
 scene.enableStats(false);
 
-let arObject = new Node();
-arObject.visible = false;
-scene.addNode(arObject);
+let arObjectFlower = new Node();
+arObjectFlower.visible = false;
+scene.addNode(arObjectFlower);
 
 let flower = new Gltf2Node({url: 'media/gltf/sunflower/sunflower.gltf'});
-arObject.addNode(flower);
+arObjectFlower.addNode(flower);
+
+let arObjectPalm = new Node();
+arObjectPalm.visible = false;
+scene.addNode(arObjectPalm);
+
+let palmtree = new Gltf2Node({url: 'media/gltf/palm/Palm.glb'});
+arObjectPalm.addNode(palmtree);
 
 let reticle = new Gltf2Node({url: 'media/gltf/reticle/reticle.gltf'});
 reticle.visible = false;
@@ -124,10 +156,11 @@ scene.addNode(reticle);
 // it in the world without adding much complexity.
 let shadow = new DropShadowNode();
 vec3.set(shadow.scale, 0.15, 0.15, 0.15);
-arObject.addNode(shadow);
+arObjectFlower.addNode(shadow);
+arObjectPalm.addNode(shadow);
 
-const MAX_FLOWERS = 30;
-let flowers = [];
+const MAX_OBJECTS_IN_SCENE = 30;
+let sceneObjects = [];
 
 // Ensure the background is transparent for AR.
 scene.clear = false;
@@ -216,46 +249,45 @@ function onSessionEnded(event) {
 
 // Adds a new object to the scene at the
 // specificed transform.
-function addARObjectAt(matrix, objectScale) {
+function addARObjectAt(matrix, objectScale, objectName) {
   console.log('add object');
-  let newFlower = arObject.clone();
-  newFlower.visible = true;
+  let newObject = objectName === 'flower' ? arObjectFlower.clone() : arObjectPalm.clone();
+  newObject.visible = true;
   matrix[0] = objectScale;
   matrix[5] = objectScale;
   matrix[10] = objectScale;
-  newFlower.matrix = matrix;
-  scene.addNode(newFlower);
+  newObject.matrix = matrix;
+  scene.addNode(newObject);
 
-  flowers.push(newFlower);
+  sceneObjects.push(newObject);
 
   // For performance reasons if we add too many objects start
   // removing the oldest ones to keep the scene complexity
   // from growing too much.
-  if (flowers.length > MAX_FLOWERS) {
-    let oldFlower = flowers.shift();
+  if (sceneObjects.length > MAX_OBJECTS_IN_SCENE) {
+    let oldFlower = sceneObjects.shift();
     scene.removeNode(oldFlower);
   }
 }
 
 function undo() {
-  if (flowers.length) {
-    let latestFlower = flowers.pop();
-    scene.removeNode(latestFlower);
+  if (sceneObjects.length) {
+    let latestAddedObject = sceneObjects.pop();
+    scene.removeNode(latestAddedObject);
   }
 }
 
 function reset() {
-  if (flowers.length) {
-    flowers.forEach((item) => {
+  if (sceneObjects.length) {
+    sceneObjects.forEach((item) => {
       scene.removeNode(item);
     });
-    flowers = [];
+    sceneObjects = [];
   }
 }
 
 // handle screen click in AR
 function onSelect(event) {
-  console.log('Target:', event.target);
   if (!microphoneIsOn) {
     startRecording();
   } else {
