@@ -183,6 +183,7 @@ function initXR() {
 }
 
 function onRequestSession() {
+  uiElement.classList.add('active');
   return navigator.xr.requestSession(
     'immersive-ar',
     {
@@ -196,6 +197,7 @@ function onRequestSession() {
     onSessionStarted(session);
     uiEndButton.addEventListener('click', (event) => {
       console.log('End session click');
+      uiElement.classList.remove('active');
       session.end();
     });
   });
