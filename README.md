@@ -1,13 +1,5 @@
 # Speechly web AR garden demo
 
-## What you need to run the demo
-
-* Currently the demo only works in Google Chrome Canary
-* [ARCore-capable Android device](https://developers.google.com/ar/discover/#supported_devices) running [Android 8.0 Oreo](https://www.android.com/versions/oreo-8-0/) or later version
-* You might need to enable `WebXR Device API` & `WebXR Hit Test` flags from `chrome://flags` and relaunch the browser
-* USB cable to connect your AR device to workstation
-
-
 ## Running the code locally
 
 * Install the project dependencies by running `yarn install`
@@ -15,7 +7,7 @@
 * Start the node server by running `yarn start`
 
 * Setup USB port forwarding to port `8887` at `chrome://inspect/#devices` on your workstation
-* Navigate to `http://localhost:8887` in your Google Chrome Canary (on the AR device)
+* Navigate to `http://localhost:8887` in your Google Chrome (on the AR device)
 * You can view the javascript console of your AR device by inspecting the open tab at `chrome://inspect/#devices` on your workstation
 
 ## Example sentences: 
