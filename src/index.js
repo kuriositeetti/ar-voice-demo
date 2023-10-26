@@ -10,7 +10,6 @@ import { Node } from './js/render/core/node.js';
 import { Gltf2Node } from './js/render/nodes/gltf2.js';
 import { DropShadowNode } from './js/render/nodes/drop-shadow.js';
 import { vec3 } from './js/render/math/gl-matrix.js';
-import { Ray } from './js/render/math/ray.js';
 
 const microphone = new BrowserMicrophone();
 const client = new BrowserClient({
